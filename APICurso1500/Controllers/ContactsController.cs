@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APICurso1500.Data;
 using APICurso1500.Models;
+using AutoMapper;
 
 namespace APICurso1500.Controllers
 {
@@ -15,10 +16,11 @@ namespace APICurso1500.Controllers
     public class ContactsController : ControllerBase
     {
         private readonly APICurso1500Context _context;
-
-        public ContactsController(APICurso1500Context context)
+        private readonly IMapper _mapper;
+        public ContactsController(APICurso1500Context context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Contacts
@@ -122,7 +124,7 @@ namespace APICurso1500.Controllers
         // POST: api/Contacts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Contact>> PostContact(Contact contact)
+        public async Task<ActionResult<ContactDTO>> PostContact(ContactDTO contactDTO)
         {
           if (_context.Contact == null)
           {
@@ -130,7 +132,9 @@ namespace APICurso1500.Controllers
           }
             if (ModelState.IsValid)
             {
+                var contact = _mapper.Map<Contact>(contactDTO);
                 contact.Id=Guid.NewGuid().ToString();
+                contact.CreatedDate = DateTime.Now;
                 _context.Contact.Add(contact);
                 try
                 {
